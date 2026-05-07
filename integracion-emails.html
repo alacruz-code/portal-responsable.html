@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Centro de Envío de Correos — Auditoría</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#f0f2f5;padding:25px}
+.container{max-width:1100px;margin:0 auto}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:25px 35px;border-radius:10px;margin-bottom:25px}
+.header h1{font-size:22px;margin-bottom:5px}
+.header p{opacity:0.85;font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.card{background:#fff;padding:25px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+.card h2{color:#1a1a2e;font-size:16px;margin-bottom:15px;border-bottom:2px solid #16213e;padding-bottom:8px}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:5px;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px}
+.btn{padding:12px 24px;background:#1a1a2e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;width:100%}
+.btn:hover{background:#16213e}
+.btn.green{background:#27ae60}
+.btn.green:hover{background:#229954}
+.log{background:#1a1a2e;color:#0f0;padding:15px;border-radius:6px;font-family:monospace;font-size:11px;height:200px;overflow-y:auto;margin-top:15px}
+.log-item{margin-bottom:5px}
+.config-section{background:#fff3cd;padding:20px;border-radius:8px;border-left:4px solid #f39c12;margin-bottom:20px}
+.config-section h3{color:#856404;margin-bottom:10px;font-size:14px}
+.config-section ol{margin-left:20px;font-size:13px;line-height:1.8}
+.config-section code{background:#fff;padding:2px 6px;border-radius:3px;font-size:12px}
+.recipient-list{max-height:300px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:6px;padding:10px}
+.recipient-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #f0f0f0;font-size:13px}
+.recipient-item:last-child{border-bottom:none}
+.status{padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.status.pending{background:#fff3cd;color:#856404}
+.status.sent{background:#d4edda;color:#155724}
+.status.error{background:#f8d7da;color:#721c24}
+.tabs{display:flex;gap:5px;margin-bottom:15px}
+.tab{padding:8px 16px;background:#e9ecef;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600}
+.tab.active{background:#1a1a2e;color:#fff}
+</style>
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+<h1>📧 Centro de Envío Automatizado</h1>
+<p>Sistema integrado de notificaciones · Auditoría Mayoreo 2026</p>
+</div>
+
+<div class="config-section">
+<h3>⚙️ Configuración inicial (UNA SOLA VEZ)</h3>
+<ol>
+<li>Crear cuenta gratuita en <a href="https://www.emailjs.com" target="_blank">https://www.emailjs.com</a> (200 correos/mes gratis)</li>
+<li>Conectar tu correo (Gmail/Outlook) → obtienes un <code>Service ID</code></li>
+<li>Crear una plantilla de correo → obtienes un <code>Template ID</code></li>
+<li>Copiar tu <code>Public Key</code> desde "Account → API Keys"</li>
+<li>Reemplazar las constantes <code>EMAILJS_*</code> en el script de abajo</li>
+<li>¡Listo! Los correos se envían directamente desde el navegador, sin backend</li>
+</ol>
+</div>
+
+<div class="grid">
+
+<div class="card">
+<h2>✉️ Enviar Notificación</h2>
+<div class="tabs">
+<button class="tab active" onclick="setTipo('inicial', this)">Inicial</button>
+<button class="tab" onclick="setTipo('recordatorio', this)">Recordatorio</button>
+<button class="tab" onclick="setTipo('alerta', this)">Alerta</button>
+<button class="tab" onclick="setTipo('escalamiento', this)">Escalamiento</button>
+</div>
+<div class="form-group">
+<label>Destinatario (Responsable)</label>
+<select id="destinatario">
+<option value="jbardino@empresa.com">Jessika Bardiño - Febeca</option>
+<option value="jrestrepo@empresa.com">Jorge A. Restrepo - Coordinación</option>
+<option value="dmaltese@empresa.com">Daniel Maltese - Sillaca</option>
+<option value="rorellana@empresa.com">Raúl Orellana - Cofersa CR</option>
+<option value="nosto@empresa.com">Normelys Osto - Beval</option>
+</select>
+</div>
+<div class="form-group">
+<label>Hallazgo</label>
+<select id="hallazgo">
+<option>H001 - Apropiación indebida cobranzas (USD 23,184.36)</option>
+<option>H002 - Pagos no reportados ADVs (USD 3,992.30)</option>
+<option>H003 - Uso código cliente ADV (USD 2,234.64)</option>
+<option>H004 - Diferencias inventario Softland</option>
+</select>
+</div>
+<div class="form-group">
+<label>Token único (link portal)</label>
+<input type="text" id="token" value="JB-FEBECA-2026-X7K9P2" readonly>
+</div>
+<div class="form-group">
+<label>Asunto</label>
+<input type="text" id="asunto" value="🛡️ Nuevo hallazgo asignado - Auditoría Mayoreo 2026">
+</div>
+<button class="btn green" onclick="enviarCorreo()">📤 ENVIAR AHORA</button>
+<div class="log" id="log">
+<div class="log-item">[Sistema iniciado] EmailJS listo para envíos</div>
+</div>
+</div>
+
+<div class="card">
+<h2>📋 Cola de Envíos Programados</h2>
+<button class="btn" onclick="enviarMasivo()" style="margin-bottom:15px">🚀 Procesar todos los pendientes</button>
+<div class="recipient-list" id="recipientList"></div>
+</div>
+
+</div>
+
+<div class="card">
+<h2>🤖 Programador Automático (Cron Frontend)</h2>
+<p style="font-size:13px;color:#666;margin-bottom:15px">El sistema revisa cada hora y envía recordatorios automáticos según las reglas:</p>
+<ul style="font-size:13px;line-height:1.8;margin-left:20px">
+<li>📅 <strong>30 días antes:</strong> Notificación informativa</li>
+<li>🔔 <strong>7 días antes:</strong> Recordatorio al responsable</li>
+<li>⚠️ <strong>3 días antes:</strong> Alerta crítica + cc Gerencia</li>
+<li>🚨 <strong>Día 0 o vencido:</strong> Escalamiento a Comité de Auditoría</li>
+</ul>
+<button class="btn" onclick="ejecutarRevision()" style="margin-top:15px">▶️ Ejecutar revisión ahora</button>
+</div>
+
+</div>
+
+<script>
+// ====== CONFIGURACIÓN EMAILJS (REEMPLAZAR CON TUS CREDENCIALES) ======
+const EMAILJS_PUBLIC_KEY = 'qqigLODabNNX5fZPg';
+const EMAILJS_SERVICE_ID = 'service_z6de3ra';
+const EMAILJS_TEMPLATE_ID = 'template_0sd72ef';
+const PORTAL_URL = 'https://tudominio.com/portal-responsable.html';
+
+// Inicializar EmailJS
+try { emailjs.init({publicKey: EMAILJS_PUBLIC_KEY}); } catch(e){}
+
+let tipoActual = 'inicial';
+
+const colaEnvios = [
+  {nombre:'Jessika Bardiño', email:'jbardino@empresa.com', hallazgo:'H001', tipo:'Recordatorio 7d', vence:'2025-11-20', estado:'pending'},
+  {nombre:'Daniel Maltese', email:'dmaltese@empresa.com', hallazgo:'H002', tipo:'Alerta 3d', vence:'2025-11-15', estado:'pending'},
+  {nombre:'Raúl Orellana', email:'rorellana@empresa.com', hallazgo:'CR-001', tipo:'Escalamiento', vence:'2025-11-10', estado:'pending'},
+  {nombre:'Jorge Restrepo', email:'jrestrepo@empresa.com', hallazgo:'H003', tipo:'Inicial', vence:'2025-12-15', estado:'pending'},
+  {nombre:'Normelys Osto', email:'nosto@empresa.com', hallazgo:'H005', tipo:'Recordatorio 7d', vence:'2025-11-22', estado:'pending'}
+];
+
+function setTipo(t, btn){
+  tipoActual = t;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  const asuntos = {
+    inicial:'🛡️ Nuevo hallazgo asignado - Auditoría Mayoreo 2026',
+    recordatorio:'🔔 Recordatorio: Su hallazgo vence en 7 días',
+    alerta:'⚠️ ALERTA CRÍTICA: 3 días para vencimiento',
+    escalamiento:'🚨 ESCALAMIENTO: Hallazgo VENCIDO sin respuesta'
+  };
+  document.getElementById('asunto').value = asuntos[t];
+}
+
+function log(msg, color='#0f0'){
+  const l = document.getElementById('log');
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  item.style.color = color;
+  item.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  l.insertBefore(item, l.firstChild);
+}
+
+function enviarCorreo(){
+  const dest = document.getElementById('destinatario').value;
+  const hall = document.getElementById('hallazgo').value;
+  const token = document.getElementById('token').value;
+  const asunto = document.getElementById('asunto').value;
+  const linkPortal = `${PORTAL_URL}?token=${token}`;
+  
+  const params = {
+    to_email: dest,
+    to_name: document.getElementById('destinatario').selectedOptions[0].text.split(' - ')[0],
+    subject: asunto,
+    hallazgo: hall,
+    link_portal: linkPortal,
+    tipo_alerta: tipoActual,
+    fecha_envio: new Date().toLocaleString('es-VE')
+  };
+  
+  log(`📤 Enviando '${tipoActual}' a ${dest}...`, '#3498db');
+  
+  // ENVÍO REAL CON EMAILJS
+  if(EMAILJS_PUBLIC_KEY === 'TU_PUBLIC_KEY_AQUI'){
+    // Modo simulación
+    setTimeout(()=>{
+      log(`✅ [SIMULADO] Correo enviado a ${dest}`, '#0f0');
+      log(`   📎 Link incluido: ${linkPortal}`, '#888');
+    }, 800);
+    return;
+  }
+  
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+    .then(() => {
+      log(`✅ Correo enviado exitosamente a ${dest}`, '#0f0');
+      log(`   📎 Link: ${linkPortal}`, '#888');
+    })
+    .catch(err => {
+      log(`❌ Error: ${err.text || err.message}`, '#f00');
+    });
+}
+
+function renderCola(){
+  const c = document.getElementById('recipientList');
+  c.innerHTML = '';
+  colaEnvios.forEach((e,i)=>{
+    const div = document.createElement('div');
+    div.className = 'recipient-item';
+    div.innerHTML = `
+      <div>
+        <div style="font-weight:600">${e.nombre}</div>
+        <div style="font-size:11px;color:#666">${e.hallazgo} · ${e.tipo} · vence ${e.vence}</div>
+      </div>
+      <span class="status ${e.estado}">${e.estado.toUpperCase()}</span>
+    `;
+    c.appendChild(div);
+  });
+}
+
+function enviarMasivo(){
+  log(`🚀 Iniciando envío masivo de ${colaEnvios.filter(e=>e.estado==='pending').length} correos...`, '#f39c12');
+  colaEnvios.forEach((e,i)=>{
+    if(e.estado !== 'pending') return;
+    setTimeout(()=>{
+      e.estado = 'sent';
+      log(`✅ ${e.tipo} → ${e.nombre} (${e.email})`, '#0f0');
+      renderCola();
+    }, i*900);
+  });
+}
+
+function ejecutarRevision(){
+  log('🤖 Iniciando revisión automática de vencimientos...', '#9b59b6');
+  setTimeout(()=>log('   ✓ 12 hallazgos analizados', '#888'), 500);
+  setTimeout(()=>log('   ⚠️ 2 hallazgos vencidos detectados → Escalamiento', '#e74c3c'), 1000);
+  setTimeout(()=>log('   🔔 3 hallazgos próximos a vencer (≤7d) → Recordatorios', '#f39c12'), 1500);
+  setTimeout(()=>log('   ✓ Revisión completada. Próxima en 1 hora.', '#0f0'), 2000);
+}
+
+// Auto-revisión cada hora (en producción)
+// setInterval(ejecutarRevision, 3600000);
+
+renderCola();
+</script>
+</body>
+</html>

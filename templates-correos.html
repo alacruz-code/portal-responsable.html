@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Templates de Correos — Auditoría Mayoreo</title>
+<style>
+body{font-family:Segoe UI,sans-serif;background:#f0f2f5;padding:30px;margin:0}
+.section{max-width:700px;margin:0 auto 40px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 15px rgba(0,0,0,0.08)}
+.section-title{background:#1a1a2e;color:#fff;padding:15px 25px;font-size:16px;font-weight:600}
+.email-preview{padding:0}
+.email-header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:25px}
+.email-header h1{font-size:20px;margin-bottom:8px}
+.email-header .sub{font-size:13px;opacity:0.85}
+.email-body{padding:30px}
+.btn-cta{display:inline-block;background:#3498db;color:#fff !important;padding:14px 30px;border-radius:6px;text-decoration:none;font-weight:600;margin:15px 0}
+.btn-cta.danger{background:#e74c3c}
+.btn-cta.warning{background:#f39c12}
+.box{padding:15px;border-radius:6px;margin:15px 0;font-size:13px}
+.box.info{background:#e3f2fd;border-left:4px solid #2196f3}
+.box.warning{background:#fff3cd;border-left:4px solid #f39c12}
+.box.danger{background:#f8d7da;border-left:4px solid #e74c3c}
+table{width:100%;border-collapse:collapse;margin:15px 0;font-size:13px}
+th,td{padding:10px;border:1px solid #ddd;text-align:left}
+th{background:#f5f5f5}
+.email-footer{background:#f8f9fa;padding:20px;text-align:center;font-size:11px;color:#666;border-top:1px solid #e0e0e0}
+.label-tag{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.label-tag.alto{background:#fee;color:#c0392b}
+.label-tag.medio{background:#fef5e7;color:#d35400}
+</style>
+</head>
+<body>
+
+<!-- ========== TEMPLATE 1: NOTIFICACIÓN INICIAL ========== -->
+<div class="section">
+<div class="section-title">✉️ TEMPLATE 1 — Notificación Inicial (Asignación)</div>
+<div class="email-preview">
+<div class="email-header">
+<h1>🛡️ Nuevo Hallazgo Asignado</h1>
+<div class="sub">Plan de Auditoría Mayoreo 2026 · ¡SuMayoristaPreferido!</div>
+</div>
+<div class="email-body">
+<p>Estimado/a <strong>{{nombre_responsable}}</strong>,</p>
+<p>Se le ha asignado un nuevo hallazgo de auditoría que requiere su atención y respuesta dentro del plazo establecido.</p>
+<table>
+<tr><th>ID Hallazgo</th><td>{{id_hallazgo}}</td></tr>
+<tr><th>Empresa</th><td>{{empresa}}</td></tr>
+<tr><th>Área</th><td>{{area}}</td></tr>
+<tr><th>Prioridad</th><td><span class="label-tag alto">{{prioridad}}</span></td></tr>
+<tr><th>Fecha Compromiso</th><td><strong>{{fecha_limite}}</strong></td></tr>
+<tr><th>Auditor Responsable</th><td>{{auditor}}</td></tr>
+</table>
+<div class="box info">
+<strong>📝 Descripción:</strong><br>{{descripcion_hallazgo}}
+</div>
+<p style="text-align:center"><a href="{{link_portal}}" class="btn-cta">🔗 Acceder al Portal y Responder</a></p>
+<p style="font-size:12px;color:#666">Este enlace es personal e intransferible. Token: <code>{{token}}</code></p>
+</div>
+<div class="email-footer">Sistema de Auditoría Interna · Por favor no responder a este correo</div>
+</div>
+</div>
+
+<!-- ========== TEMPLATE 2: RECORDATORIO 7 DÍAS ========== -->
+<div class="section">
+<div class="section-title">🔔 TEMPLATE 2 — Recordatorio 7 días antes</div>
+<div class="email-preview">
+<div class="email-header" style="background:linear-gradient(135deg,#d35400,#f39c12)">
+<h1>🔔 Recordatorio: Hallazgo próximo a vencer</h1>
+<div class="sub">Faltan 7 días para el cierre del compromiso</div>
+</div>
+<div class="email-body">
+<p>Estimado/a <strong>{{nombre_responsable}}</strong>,</p>
+<div class="box warning">
+<strong>⏰ Su hallazgo {{id_hallazgo}} vence el {{fecha_limite}}</strong><br>
+Avance actual: <strong>{{porcentaje_avance}}%</strong>
+</div>
+<p><strong>Hallazgo:</strong> {{titulo_hallazgo}}<br>
+<strong>Empresa:</strong> {{empresa}} | <strong>Área:</strong> {{area}}</p>
+<p>Por favor actualice el estado, evidencias y % de avance en el portal antes del vencimiento.</p>
+<p style="text-align:center"><a href="{{link_portal}}" class="btn-cta warning">⚡ Actualizar ahora</a></p>
+</div>
+<div class="email-footer">Recordatorio automático · 7 días antes del vencimiento</div>
+</div>
+</div>
+
+<!-- ========== TEMPLATE 3: ALERTA CRÍTICA 3 DÍAS ========== -->
+<div class="section">
+<div class="section-title">⚠️ TEMPLATE 3 — Alerta Crítica 3 días (cc Gerencia)</div>
+<div class="email-preview">
+<div class="email-header" style="background:linear-gradient(135deg,#c0392b,#e74c3c)">
+<h1>⚠️ ALERTA CRÍTICA: Vencimiento inminente</h1>
+<div class="sub">Su acción requiere respuesta inmediata · CC: Gerencia</div>
+</div>
+<div class="email-body">
+<p>Estimado/a <strong>{{nombre_responsable}}</strong>,</p>
+<div class="box danger">
+<strong>🚨 Solo quedan 3 días para el vencimiento del hallazgo {{id_hallazgo}}</strong><br>
+Fecha límite: <strong>{{fecha_limite}}</strong><br>
+Estado actual: {{estado}} | Avance: {{porcentaje_avance}}%
+</div>
+<p>Esta notificación se ha enviado con copia a:</p>
+<ul style="font-size:13px">
+<li>Gerencia de Operaciones</li>
+<li>Auditoría Interna ({{auditor}})</li>
+</ul>
+<p style="text-align:center"><a href="{{link_portal}}" class="btn-cta danger">🔥 Responder URGENTE</a></p>
+<p style="font-size:12px;color:#666">El incumplimiento del plazo activará protocolo de escalamiento al Comité de Auditoría.</p>
+</div>
+<div class="email-footer">Auditoría Interna Mayoreo · Alerta automatizada</div>
+</div>
+</div>
+
+<!-- ========== TEMPLATE 4: ESCALAMIENTO ========== -->
+<div class="section">
+<div class="section-title">🚨 TEMPLATE 4 — Escalamiento por Vencimiento</div>
+<div class="email-preview">
+<div class="email-header" style="background:linear-gradient(135deg,#5e3370,#8e44ad)">
+<h1>🚨 ESCALAMIENTO: Hallazgo VENCIDO sin respuesta</h1>
+<div class="sub">Para: Gerencia General + Comité de Auditoría</div>
+</div>
+<div class="email-body">
+<p>Estimados Sres. de la Gerencia,</p>
+<p>Se notifica el incumplimiento del plazo para el siguiente hallazgo de auditoría:</p>
+<table>
+<tr><th>ID</th><td>{{id_hallazgo}}</td></tr>
+<tr><th>Responsable</th><td>{{nombre_responsable}}</td></tr>
+<tr><th>Empresa</th><td>{{empresa}}</td></tr>
+<tr><th>Días vencido</th><td><strong style="color:#c0392b">{{dias_vencido}} días</strong></td></tr>
+<tr><th>Monto / Impacto</th><td>{{monto}}</td></tr>
+<tr><th>Última actualización</th><td>{{ultima_actualizacion}}</td></tr>
+</table>
+<div class="box danger">
+<strong>Acción requerida:</strong> Convocar reunión de seguimiento extraordinaria con el responsable y reasignar plan de acción.
+</div>
+<p style="text-align:center"><a href="{{link_dashboard}}" class="btn-cta">📊 Ver Dashboard Ejecutivo</a></p>
+</div>
+<div class="email-footer">Auditoría Interna · Escalamiento automático según política CMP-AUD-001</div>
+</div>
+</div>
+
+</body>
+</html>
